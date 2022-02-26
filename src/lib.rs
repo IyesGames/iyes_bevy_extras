@@ -7,10 +7,22 @@ use std::hash::Hash;
 pub trait BevyState: Component + Debug + Clone + Eq + Hash {}
 impl<T: Component + Debug + Clone + Eq + Hash> BevyState for T {}
 
-/// Recursively despawn all entities with a specific marker component
+/// Despawn all entities with a specific marker component
 ///
 /// Useful when exiting states
-pub fn despawn_all<T: Component>(
+pub fn despawn_with<T: Component>(
+    mut cmd: Commands,
+    q: Query<Entity, With<T>>,
+) {
+    for e in q.iter() {
+        cmd.entity(e).despawn();
+    }
+}
+
+/// Despawn all entities with a specific marker component
+///
+/// Useful when exiting states
+pub fn despawn_with_recursive<T: Component>(
     mut cmd: Commands,
     q: Query<Entity, With<T>>,
 ) {
