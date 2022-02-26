@@ -4,12 +4,12 @@ use std::fmt::Debug;
 use std::hash::Hash;
 
 /// Marker trait for all types that are valid for use as Bevy States
-pub trait BevyState: Debug + Clone + Eq + Hash {}
-impl<T: Debug + Clone + Eq + Hash> BevyState for T {}
+pub trait BevyState: Debug + Clone + Eq + Hash + Send + Sync + 'static {}
+impl<T: Debug + Clone + Eq + Hash + Send + Sync + 'static> BevyState for T {}
 
 /// Marker trait for Bevy States with some extra bounds that are nice to have
-pub trait NiceBevyState: BevyState + Component + Copy + Send + Sync + 'static {}
-impl<T: BevyState + Component + Copy + Send + Sync + 'static> NiceBevyState for T {}
+pub trait NiceBevyState: BevyState + Component + Copy {}
+impl<T: BevyState + Component + Copy> NiceBevyState for T {}
 
 /// Despawn all entities with a specific marker component
 ///
