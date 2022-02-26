@@ -34,3 +34,10 @@ pub fn despawn_with_recursive<T: Component>(
         cmd.entity(e).despawn_recursive();
     }
 }
+
+/// Remove a resource using Commands
+pub fn remove_resource<T: Send + Sync + 'static>(
+    mut cmd: Commands,
+) {
+    cmd.remove_resource::<T>();
+}
