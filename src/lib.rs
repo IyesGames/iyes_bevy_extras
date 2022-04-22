@@ -1,15 +1,12 @@
 use bevy::prelude::*;
 
-use std::fmt::Debug;
-use std::hash::Hash;
-
-/// Marker trait for all types that are valid for use as Bevy States
-pub trait BevyState: Debug + Clone + Eq + Hash + Send + Sync + 'static {}
-impl<T: Debug + Clone + Eq + Hash + Send + Sync + 'static> BevyState for T {}
-
-/// Marker trait for Bevy States with some extra bounds that are nice to have
-pub trait NiceBevyState: BevyState + Component + Copy {}
-impl<T: BevyState + Component + Copy> NiceBevyState for T {}
+pub mod prelude {
+    pub use crate::despawn_with;
+    pub use crate::despawn_with_recursive;
+    pub use crate::remove_resource;
+    pub use crate::remove_from_all;
+    pub use crate::remove_from_all_with;
+}
 
 /// Despawn all entities with a specific marker component
 ///
