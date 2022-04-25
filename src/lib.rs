@@ -8,6 +8,11 @@ pub mod prelude {
     pub use crate::remove_from_all_with;
 }
 
+#[cfg(feature = "bevy_ui")]
+pub mod ui;
+#[cfg(feature = "2d")]
+pub mod d2;
+
 /// Despawn all entities with a specific marker component
 ///
 /// Useful when exiting states

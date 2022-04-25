@@ -7,3 +7,12 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.7", default-features = false }
+
+[features]
+bevy_ui = [
+    "bevy/bevy_ui",
+]
+2d = [
+    "bevy/bevy_sprite",
+    "bevy/bevy_winit",
+]
