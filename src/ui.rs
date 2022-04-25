@@ -13,7 +13,7 @@ pub fn init_camera(
 /// Condition to help with handling multiple buttons
 ///
 /// Returns true when a button identified by a given component is clicked.
-fn on_butt_interact<B: Component>(
+pub fn on_butt_interact<B: Component>(
     query: Query<&Interaction, (Changed<Interaction>, With<Button>, With<B>, Without<UiInactive>)>,
 ) -> bool {
     for interaction in query.iter() {
