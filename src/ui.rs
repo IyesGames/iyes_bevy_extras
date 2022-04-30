@@ -1,5 +1,9 @@
 use bevy::prelude::*;
 
+/// For disabling some UI elements
+#[derive(Component)]
+pub struct UiInactive;
+
 pub fn init_camera(
     mut commands: Commands,
 ) {
@@ -10,7 +14,7 @@ pub fn init_camera(
 ///
 /// Returns true when a button identified by a given component is clicked.
 fn on_butt_interact<B: Component>(
-    query: Query<&Interaction, (Changed<Interaction>, With<Button>, With<B>)>,
+    query: Query<&Interaction, (Changed<Interaction>, With<Button>, With<B>, Without<UiInactive>)>,
 ) -> bool {
     for interaction in query.iter() {
         if *interaction == Interaction::Clicked {
