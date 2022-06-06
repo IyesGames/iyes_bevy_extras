@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::IntoChainResultSystem;
 
 /// For disabling some UI elements
 #[derive(Component)]
@@ -10,17 +11,21 @@ pub fn init_camera(
     commands.spawn_bundle(UiCameraBundle::default());
 }
 
+/// Helper for adding a button handler system
+pub fn butt_handler<B: Component + Clone, Params>(handler: impl IntoSystem<B, (), Params>) -> impl System<In = (), Out = ()> {
+    on_butt_interact.chain_result(handler, move |_: In<()>| {})
+}
+
 /// Condition to help with handling multiple buttons
 ///
 /// Returns true when a button identified by a given component is clicked.
-pub fn on_butt_interact<B: Component>(
-    query: Query<&Interaction, (Changed<Interaction>, With<Button>, With<B>, Without<UiInactive>)>,
-) -> bool {
-    for interaction in query.iter() {
+fn on_butt_interact<B: Component + Clone>(
+    query: Query<(&Interaction, &B), (Changed<Interaction>, With<Button>, Without<UiInactive>)>,
+) -> Result<B, ()> {
+    for (interaction, b) in query.iter() {
         if *interaction == Interaction::Clicked {
-            return true;
+            return Ok(b.clone());
         }
     }
-
-    false
+    Err(())
 }
