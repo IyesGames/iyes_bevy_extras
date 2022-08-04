@@ -5,12 +5,6 @@ use crate::IntoChainResultSystem;
 #[derive(Component)]
 pub struct UiInactive;
 
-pub fn init_camera(
-    mut commands: Commands,
-) {
-    commands.spawn_bundle(UiCameraBundle::default());
-}
-
 /// Helper for adding a button handler system
 pub fn butt_handler<B: Component + Clone, Params>(handler: impl IntoSystem<B, (), Params>) -> impl System<In = (), Out = ()> {
     on_butt_interact.chain_result(handler, move |_: In<()>| {})
