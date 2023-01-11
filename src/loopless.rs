@@ -1,5 +1,24 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ecs::query::ReadOnlyWorldQuery};
 use iyes_loopless::prelude::*;
+
+pub trait RunConditionsExtras: ConditionHelpers {
+    fn run_if_query_nonempty<F: ReadOnlyWorldQuery + 'static>(
+        self
+    ) -> Self {
+        self.run_if(move |q: Query<(), F>| {
+            !q.is_empty()
+        })
+    }
+    fn run_if_resource_changed<T: Resource>(
+        self
+    ) -> Self {
+        self.run_if(move |res: Res<T>| {
+            res.is_changed()
+        })
+    }
+}
+
+impl<T: ConditionHelpers> RunConditionsExtras for T {}
 
 pub trait RunConditionsInputExtras: ConditionHelpers {
     fn run_on_mouse_press(
