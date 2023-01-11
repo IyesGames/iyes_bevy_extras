@@ -8,9 +8,10 @@ publish = false
 
 [dependencies]
 bevy = { version = "0.9", default-features = false }
+iyes_loopless = { version = "0.9", optional = true }
 
 [features]
-default = [ "bevy_ui", "2d" ]
+default = [ "bevy_ui", "2d", "iyes_loopless" ]
 bevy_ui = [
     "bevy/bevy_ui",
 ]
