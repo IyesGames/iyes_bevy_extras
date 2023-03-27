@@ -1,52 +1,50 @@
 use bevy::prelude::*;
+use bevy::ecs::query::ReadOnlyWorldQuery;
 
-/// Despawn all entities with a specific marker component
+/// Convenience system for despawning all entities that match a given query filter
 ///
-/// Useful when exiting states
-pub fn despawn_with<T: Component>(
-    mut cmd: Commands,
-    q: Query<Entity, With<T>>,
-) {
-    for e in q.iter() {
-        cmd.entity(e).despawn();
-    }
-}
-
-/// Despawn all entities with a specific marker component
+/// This is useful as an "exit" system in your app states, to clean up large
+/// swaths of entities on state transition. For example, you could create a marker
+/// component for all of your gameplay entities, and use this system to easily
+/// despawn all of them when going back to the main menu.
 ///
-/// Useful when exiting states
-pub fn despawn_with_recursive<T: Component>(
-    mut cmd: Commands,
-    q: Query<Entity, With<T>>,
-) {
-    for e in q.iter() {
-        cmd.entity(e).despawn_recursive();
+/// Consider using [`despawn_all_with_recursive`][bevy_hierarchy::despawn_all_with_recursive]
+/// instead, to ensure you are not left with broken hierarchies. This could happen if
+/// you have an entity with the component in a hierarchy where not all entities have the
+/// component. This system will only despawn the entities with the component.
+pub fn despawn_all<F: ReadOnlyWorldQuery>(world: &mut World, mut query: QueryState<Entity, F>) {
+    let entities: Vec<Entity> = query.iter(world).collect();
+    for entity in entities {
+        world.despawn(entity);
     }
 }
 
-/// Remove a resource using Commands
-pub fn remove_resource<T: Resource>(
-    mut cmd: Commands,
-) {
-    cmd.remove_resource::<T>();
-}
-
-/// Remove a component type from all entities that have it
-pub fn remove_from_all<T: Component>(
-    mut cmd: Commands,
-    q: Query<Entity, With<T>>,
-) {
-    for e in q.iter() {
-        cmd.entity(e).remove::<T>();
+pub fn despawn_all_recursive<F: ReadOnlyWorldQuery>(world: &mut World, mut query: QueryState<Entity, F>) {
+    let entities: Vec<Entity> = query.iter(world).collect();
+    for entity in entities {
+        if let Some(entity_mut) = world.get_entity_mut(entity) {
+            entity_mut.despawn_recursive();
+        }
     }
 }
 
-/// Remove a component type from any entities with some other component
-pub fn remove_from_all_with<T: Component, W: Component>(
-    mut cmd: Commands,
-    q: Query<Entity, (With<T>, With<W>)>,
-) {
-    for e in q.iter() {
-        cmd.entity(e).remove::<T>();
+/// Convenience system for removing a resource of the given type
+///
+/// This is useful as an "exit" system in your app states, to remove resouces
+/// that should only be present in a specific state.
+pub fn remove_resource<T: Resource>(world: &mut World) {
+    world.remove_resource::<T>();
+}
+
+/// Convenience system for removing a component from all entities that match a given query filter
+///
+/// This may be useful as an "exit" system in your app states.
+pub fn remove_from_all<T: Component, F: ReadOnlyWorldQuery>(world: &mut World, mut query: QueryState<Entity, (With<T>, F)>) {
+    let entities: Vec<Entity> = query.iter(world).collect();
+    for entity in entities {
+        if let Some(mut entity_mut) = world.get_entity_mut(entity) {
+            entity_mut.remove::<T>();
+        }
     }
 }
+
