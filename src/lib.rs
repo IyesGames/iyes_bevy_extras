@@ -5,8 +5,6 @@
 pub mod prelude {
     pub use crate::cleanup::*;
     pub use crate::system::*;
-    #[cfg(feature = "iyes_loopless")]
-    pub use crate::loopless::*;
     #[cfg(feature = "bevy_ui")]
     pub use crate::ui::*;
     #[cfg(feature = "2d")]
@@ -15,8 +13,6 @@ pub mod prelude {
 
 pub mod cleanup;
 pub mod system;
-#[cfg(feature = "iyes_loopless")]
-pub mod loopless;
 #[cfg(feature = "bevy_ui")]
 pub mod ui;
 #[cfg(feature = "2d")]
