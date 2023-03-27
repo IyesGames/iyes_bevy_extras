@@ -29,6 +29,10 @@ impl<T, E, O, SystemIn: System<Out = Result<T, E>>, SystemOk: System<In = T, Out
         self.name.clone()
     }
 
+    fn type_id(&self) -> std::any::TypeId {
+        std::any::TypeId::of::<Self>()
+    }
+
     fn archetype_component_access(&self) -> &Access<ArchetypeComponentId> {
         &self.archetype_component_access
     }
@@ -153,6 +157,10 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
 
     fn name(&self) -> Cow<'static, str> {
         self.name.clone()
+    }
+
+    fn type_id(&self) -> std::any::TypeId {
+        std::any::TypeId::of::<Self>()
     }
 
     fn archetype_component_access(&self) -> &Access<ArchetypeComponentId> {
