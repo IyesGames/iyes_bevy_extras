@@ -12,6 +12,7 @@ pub mod prelude {
 }
 
 pub mod cleanup;
+pub mod cli;
 pub mod system;
 #[cfg(feature = "bevy_ui")]
 pub mod ui;
