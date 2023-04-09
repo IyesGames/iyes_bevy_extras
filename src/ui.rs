@@ -43,17 +43,23 @@ fn onclick_run_behaviors(
                 ClickBehaviorKind::Cli(cli) => {
                     world.run_clicommand(cli);
                 }
-                ClickBehaviorKind::System(system_opt) => {
+                ClickBehaviorKind::System(initted, system_opt) => {
                     if let Some(mut system) = system_opt.take() {
-                        system.initialize(world);
+                        if !*initted {
+                            system.initialize(world);
+                            *initted = true;
+                        }
                         system.run((), world);
                         system.apply_buffers(world);
                         *system_opt = Some(system);
                     }
                 }
-                ClickBehaviorKind::EntitySystem(system_opt) => {
+                ClickBehaviorKind::EntitySystem(initted, system_opt) => {
                     if let Some(mut system) = system_opt.take() {
-                        system.initialize(world);
+                        if !*initted {
+                            system.initialize(world);
+                            *initted = true;
+                        }
                         system.run(entity, world);
                         system.apply_buffers(world);
                         *system_opt = Some(system);
@@ -68,8 +74,8 @@ fn onclick_run_behaviors(
 }
 
 enum ClickBehaviorKind {
-    System(Option<Box<dyn System<In = (), Out = ()>>>),
-    EntitySystem(Option<Box<dyn System<In = Entity, Out = ()>>>),
+    System(bool, Option<Box<dyn System<In = (), Out = ()>>>),
+    EntitySystem(bool, Option<Box<dyn System<In = Entity, Out = ()>>>),
     Cli(String),
 }
 
@@ -85,13 +91,13 @@ impl ClickBehavior {
     pub fn system<S, Param>(mut self, system: S) -> ClickBehavior
         where S: IntoSystem<(), (), Param>
     {
-        self.actions.push(ClickBehaviorKind::System(Some(Box::new(IntoSystem::into_system(system)))));
+        self.actions.push(ClickBehaviorKind::System(false, Some(Box::new(IntoSystem::into_system(system)))));
         self
     }
     pub fn entity_system<S, Param>(mut self, system: S) -> ClickBehavior
         where S: IntoSystem<Entity, (), Param>
     {
-        self.actions.push(ClickBehaviorKind::EntitySystem(Some(Box::new(IntoSystem::into_system(system)))));
+        self.actions.push(ClickBehaviorKind::EntitySystem(false, Some(Box::new(IntoSystem::into_system(system)))));
         self
     }
     pub fn cli(mut self, cli: &str) -> ClickBehavior {
