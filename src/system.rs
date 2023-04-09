@@ -101,6 +101,13 @@ impl<T, E, O, SystemIn: System<Out = Result<T, E>>, SystemOk: System<In = T, Out
         self.system_ok.set_last_change_tick(last_change_tick);
         self.system_err.set_last_change_tick(last_change_tick);
     }
+
+    fn default_system_sets(&self) -> Vec<Box<dyn SystemSet>> {
+        let mut default_sets = self.system_in.default_system_sets();
+        default_sets.append(&mut self.system_ok.default_system_sets());
+        default_sets.append(&mut self.system_err.default_system_sets());
+        default_sets
+    }
 }
 
 pub trait IntoChainResultSystem<T, E, Out, SysOk, SysErr, ParamIn, ParamOk, ParamErr>:
@@ -222,6 +229,12 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
     fn set_last_change_tick(&mut self, last_change_tick: u32) {
         self.system_in.set_last_change_tick(last_change_tick);
         self.system_some.set_last_change_tick(last_change_tick);
+    }
+
+    fn default_system_sets(&self) -> Vec<Box<dyn SystemSet>> {
+        let mut default_sets = self.system_in.default_system_sets();
+        default_sets.append(&mut self.system_some.default_system_sets());
+        default_sets
     }
 }
 
