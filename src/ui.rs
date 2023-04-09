@@ -23,25 +23,6 @@ impl Plugin for UiExtrasPlugin {
 #[derive(Component)]
 pub struct UiDisabled;
 
-/// Helper for adding a button handler system
-pub fn butt_handler<B: Component + Clone, Params>(handler: impl IntoSystem<B, (), Params>) -> impl System<In = (), Out = ()> {
-    on_butt_interact.chain_optional(handler)
-}
-
-/// Condition to help with handling multiple buttons
-///
-/// Returns true when a button identified by a given component is clicked.
-fn on_butt_interact<B: Component + Clone>(
-    query: Query<(&Interaction, &B), (Changed<Interaction>, With<Button>, Without<UiDisabled>)>,
-) -> Option<B> {
-    for (interaction, b) in query.iter() {
-        if *interaction == Interaction::Clicked {
-            return Some(b.clone());
-        }
-    }
-    None
-}
-
 fn onclick_run_behaviors(
     world: &mut World,
     query: &mut QueryState<
@@ -70,6 +51,14 @@ fn onclick_run_behaviors(
                         *system_opt = Some(system);
                     }
                 }
+                ClickBehaviorKind::EntitySystem(system_opt) => {
+                    if let Some(mut system) = system_opt.take() {
+                        system.initialize(world);
+                        system.run(entity, world);
+                        system.apply_buffers(world);
+                        *system_opt = Some(system);
+                    }
+                }
             }
         }
         let Some(mut entity_mut) = world.get_entity_mut(entity) else { continue; };
@@ -79,7 +68,8 @@ fn onclick_run_behaviors(
 }
 
 enum ClickBehaviorKind {
-    System(Option<BoxedSystem>),
+    System(Option<Box<dyn System<In = (), Out = ()>>>),
+    EntitySystem(Option<Box<dyn System<In = Entity, Out = ()>>>),
     Cli(String),
 }
 
@@ -92,14 +82,20 @@ impl ClickBehavior {
     pub fn new() -> ClickBehavior {
         ClickBehavior::default()
     }
-    pub fn cli(mut self, cli: &str) -> ClickBehavior {
-        self.actions.push(ClickBehaviorKind::Cli(cli.to_owned()));
-        self
-    }
     pub fn system<S, Param>(mut self, system: S) -> ClickBehavior
         where S: IntoSystem<(), (), Param>
     {
         self.actions.push(ClickBehaviorKind::System(Some(Box::new(IntoSystem::into_system(system)))));
+        self
+    }
+    pub fn entity_system<S, Param>(mut self, system: S) -> ClickBehavior
+        where S: IntoSystem<Entity, (), Param>
+    {
+        self.actions.push(ClickBehaviorKind::EntitySystem(Some(Box::new(IntoSystem::into_system(system)))));
+        self
+    }
+    pub fn cli(mut self, cli: &str) -> ClickBehavior {
+        self.actions.push(ClickBehaviorKind::Cli(cli.to_owned()));
         self
     }
 }
