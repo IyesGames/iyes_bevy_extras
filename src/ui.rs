@@ -1,9 +1,7 @@
 use bevy::prelude::*;
-use bevy::ecs::system::BoxedSystem;
 use bevy::utils::HashMap;
 
 use crate::cli::CliCommandsExt;
-use crate::system::IntoChainOptionalSystem;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemSet)]
 pub struct ClickHandlerSet;
