@@ -31,7 +31,9 @@ fn world_cursor(
     q_primary_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform), With<WorldCursorCamera>>,
 ) {
-    let (camera, xf_camera) = q_camera.single();
+    let Ok((camera, xf_camera)) = q_camera.get_single() else {
+        return;
+    };
     let RenderTarget::Window(w_id) = camera.target
     else {
         panic!("Cursor camera must render to a window!");
