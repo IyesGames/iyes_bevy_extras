@@ -22,6 +22,7 @@ pub struct WorldCursorCamera;
 #[derive(Resource, Default)]
 pub struct WorldCursor {
     pub pos: Vec2,
+    pub pos_prev: Vec2,
 }
 
 fn world_cursor(
@@ -45,6 +46,7 @@ fn world_cursor(
     else {
         return;
     };
+    crs.pos_prev = crs.pos;
     crs.pos = cursor;
 }
 
