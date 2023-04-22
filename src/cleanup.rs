@@ -36,6 +36,14 @@ pub fn remove_resource<T: Resource>(world: &mut World) {
     world.remove_resource::<T>();
 }
 
+/// Convenience system for initting a resource of the given type
+///
+/// This is useful as an "enter" system in your app states, to create resouces
+/// that should only be present in a specific state.
+pub fn init_resource<T: Resource + FromWorld>(world: &mut World) {
+    world.init_resource::<T>();
+}
+
 /// Convenience system for removing a component from all entities that match a given query filter
 ///
 /// This may be useful as an "exit" system in your app states.
