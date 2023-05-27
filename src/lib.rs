@@ -5,16 +5,11 @@
 pub mod prelude {
     pub use crate::cleanup::*;
     pub use crate::system::*;
-    #[cfg(feature = "bevy_ui")]
-    pub use crate::ui::*;
     #[cfg(feature = "2d")]
     pub use crate::d2::*;
 }
 
 pub mod cleanup;
-pub mod cli;
 pub mod system;
-#[cfg(feature = "bevy_ui")]
-pub mod ui;
 #[cfg(feature = "2d")]
 pub mod d2;

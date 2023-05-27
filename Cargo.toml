@@ -10,12 +10,7 @@ publish = false
 bevy = { version = "0.10", default-features = false }
 
 [features]
-default = [ "bevy_ui", "2d" ]
-bevy_ui = [
-    "bevy/bevy_render",
-    "bevy/bevy_core_pipeline",
-    "bevy/bevy_ui",
-]
+default = [ "2d" ]
 2d = [
     "bevy/bevy_render",
     "bevy/bevy_core_pipeline",
