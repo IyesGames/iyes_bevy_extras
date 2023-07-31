@@ -10,7 +10,7 @@ pub struct WorldCursorPlugin;
 impl Plugin for WorldCursorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<WorldCursor>();
-        app.add_system(
+        app.add_systems(Update,
             world_cursor.in_set(WorldCursorSet)
         );
     }

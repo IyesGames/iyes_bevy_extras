@@ -1,6 +1,7 @@
+use bevy::ecs::world::unsafe_world_cell::UnsafeWorldCell;
 use bevy::prelude::*;
 use bevy::ecs::query::Access;
-use bevy::ecs::component::ComponentId;
+use bevy::ecs::component::{ComponentId, Tick};
 use bevy::ecs::archetype::ArchetypeComponentId;
 use std::borrow::Cow;
 
@@ -49,17 +50,24 @@ impl<T, E, O, SystemIn: System<Out = Result<T, E>>, SystemOk: System<In = T, Out
         self.system_in.is_send() || self.system_ok.is_send() || self.system_err.is_send()
     }
 
-    unsafe fn run_unsafe(&mut self, input: Self::In, world: &World) -> Self::Out {
+    unsafe fn run_unsafe(&mut self, input: Self::In, world: UnsafeWorldCell) -> Self::Out {
         match self.system_in.run_unsafe(input, world) {
             Ok(t) => self.system_ok.run_unsafe(t, world),
             Err(e) => self.system_err.run_unsafe(e, world),
         }
     }
 
-    fn apply_buffers(&mut self, world: &mut World) {
-        self.system_in.apply_buffers(world);
-        self.system_ok.apply_buffers(world);
-        self.system_err.apply_buffers(world);
+    fn run(&mut self, input: Self::In, world: &mut World) -> Self::Out {
+        match self.system_in.run(input, world) {
+            Ok(t) => self.system_ok.run(t, world),
+            Err(e) => self.system_err.run(e, world),
+        }
+    }
+
+    fn apply_deferred(&mut self, world: &mut World) {
+        self.system_in.apply_deferred(world);
+        self.system_ok.apply_deferred(world);
+        self.system_err.apply_deferred(world);
     }
 
     fn initialize(&mut self, world: &mut World) {
@@ -74,7 +82,7 @@ impl<T, E, O, SystemIn: System<Out = Result<T, E>>, SystemOk: System<In = T, Out
             .extend(self.system_err.component_access());
     }
 
-    fn update_archetype_component_access(&mut self, world: &World) {
+    fn update_archetype_component_access(&mut self, world: UnsafeWorldCell) {
         self.system_in.update_archetype_component_access(world);
         self.system_ok.update_archetype_component_access(world);
         self.system_err.update_archetype_component_access(world);
@@ -86,20 +94,20 @@ impl<T, E, O, SystemIn: System<Out = Result<T, E>>, SystemOk: System<In = T, Out
             .extend(self.system_err.archetype_component_access());
     }
 
-    fn check_change_tick(&mut self, change_tick: u32) {
+    fn check_change_tick(&mut self, change_tick: Tick) {
         self.system_in.check_change_tick(change_tick);
         self.system_ok.check_change_tick(change_tick);
         self.system_err.check_change_tick(change_tick);
     }
 
-    fn get_last_change_tick(&self) -> u32 {
-        self.system_in.get_last_change_tick()
+    fn get_last_run(&self) -> Tick {
+        self.system_in.get_last_run()
     }
 
-    fn set_last_change_tick(&mut self, last_change_tick: u32) {
-        self.system_in.set_last_change_tick(last_change_tick);
-        self.system_ok.set_last_change_tick(last_change_tick);
-        self.system_err.set_last_change_tick(last_change_tick);
+    fn set_last_run(&mut self, last_run: Tick) {
+        self.system_in.set_last_run(last_run);
+        self.system_ok.set_last_run(last_run);
+        self.system_err.set_last_run(last_run);
     }
 
     fn default_system_sets(&self) -> Vec<Box<dyn SystemSet>> {
@@ -186,7 +194,7 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
         self.system_in.is_send() || self.system_some.is_send()
     }
 
-    unsafe fn run_unsafe(&mut self, input: Self::In, world: &World) -> Self::Out {
+    unsafe fn run_unsafe(&mut self, input: Self::In, world: UnsafeWorldCell) -> Self::Out {
         if let Some(t) = self.system_in.run_unsafe(input, world) {
             self.system_some.run_unsafe(t, world)
         } else {
@@ -194,9 +202,9 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
         }
     }
 
-    fn apply_buffers(&mut self, world: &mut World) {
-        self.system_in.apply_buffers(world);
-        self.system_some.apply_buffers(world);
+    fn apply_deferred(&mut self, world: &mut World) {
+        self.system_in.apply_deferred(world);
+        self.system_some.apply_deferred(world);
     }
 
     fn initialize(&mut self, world: &mut World) {
@@ -208,7 +216,7 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
             .extend(self.system_some.component_access());
     }
 
-    fn update_archetype_component_access(&mut self, world: &World) {
+    fn update_archetype_component_access(&mut self, world: UnsafeWorldCell) {
         self.system_in.update_archetype_component_access(world);
         self.system_some.update_archetype_component_access(world);
         self.archetype_component_access
@@ -217,18 +225,18 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
             .extend(self.system_some.archetype_component_access());
     }
 
-    fn check_change_tick(&mut self, change_tick: u32) {
+    fn check_change_tick(&mut self, change_tick: Tick) {
         self.system_in.check_change_tick(change_tick);
         self.system_some.check_change_tick(change_tick);
     }
 
-    fn get_last_change_tick(&self) -> u32 {
-        self.system_in.get_last_change_tick()
+    fn get_last_run(&self) -> Tick {
+        self.system_in.get_last_run()
     }
 
-    fn set_last_change_tick(&mut self, last_change_tick: u32) {
-        self.system_in.set_last_change_tick(last_change_tick);
-        self.system_some.set_last_change_tick(last_change_tick);
+    fn set_last_run(&mut self, last_run: Tick) {
+        self.system_in.set_last_run(last_run);
+        self.system_some.set_last_run(last_run);
     }
 
     fn default_system_sets(&self) -> Vec<Box<dyn SystemSet>> {
