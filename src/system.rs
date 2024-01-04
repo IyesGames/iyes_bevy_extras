@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy::ecs::query::Access;
 use bevy::ecs::component::{ComponentId, Tick};
 use bevy::ecs::archetype::ArchetypeComponentId;
+use bevy::utils::intern::Interned;
 use std::borrow::Cow;
 
 /// Similar to Bevy's PipedSystem, but with diverging paths for Ok/Err Results
@@ -110,7 +111,7 @@ impl<T, E, O, SystemIn: System<Out = Result<T, E>>, SystemOk: System<In = T, Out
         self.system_err.set_last_run(last_run);
     }
 
-    fn default_system_sets(&self) -> Vec<Box<dyn SystemSet>> {
+    fn default_system_sets(&self) -> Vec<Interned<dyn SystemSet>> {
         let mut default_sets = self.system_in.default_system_sets();
         default_sets.append(&mut self.system_ok.default_system_sets());
         default_sets.append(&mut self.system_err.default_system_sets());
@@ -239,7 +240,7 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
         self.system_some.set_last_run(last_run);
     }
 
-    fn default_system_sets(&self) -> Vec<Box<dyn SystemSet>> {
+    fn default_system_sets(&self) -> Vec<Interned<dyn SystemSet>> {
         let mut default_sets = self.system_in.default_system_sets();
         default_sets.append(&mut self.system_some.default_system_sets());
         default_sets
