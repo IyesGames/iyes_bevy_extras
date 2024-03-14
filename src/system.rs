@@ -51,6 +51,10 @@ impl<T, E, O, SystemIn: System<Out = Result<T, E>>, SystemOk: System<In = T, Out
         self.system_in.is_send() || self.system_ok.is_send() || self.system_err.is_send()
     }
 
+    fn has_deferred(&self) -> bool {
+        self.system_in.has_deferred() || self.system_ok.has_deferred() || self.system_err.has_deferred()
+    }
+
     unsafe fn run_unsafe(&mut self, input: Self::In, world: UnsafeWorldCell) -> Self::Out {
         match self.system_in.run_unsafe(input, world) {
             Ok(t) => self.system_ok.run_unsafe(t, world),
@@ -193,6 +197,10 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
 
     fn is_exclusive(&self) -> bool {
         self.system_in.is_send() || self.system_some.is_send()
+    }
+
+    fn has_deferred(&self) -> bool {
+        self.system_in.has_deferred() || self.system_some.has_deferred()
     }
 
     unsafe fn run_unsafe(&mut self, input: Self::In, world: UnsafeWorldCell) -> Self::Out {
