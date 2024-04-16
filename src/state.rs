@@ -17,29 +17,17 @@ pub enum SetStage<T: Debug + PartialEq + Eq + Clone + Copy + Hash + SystemSet> {
     WantChanged(T),
 }
 
-impl<T: Debug + PartialEq + Eq + Clone + Copy + Hash + SystemSet> SetStage<T> {
-    pub fn configure_sets<M>(
-        app: &mut App,
-        schedule: impl ScheduleLabel,
-        t: T,
-        rc_changed: impl Condition<M>,
-    ) {
-        app.configure_sets(schedule, (
-            Self::Prepare(t).before(Self::Provide(t)),
-            Self::Want(t).after(Self::Provide(t)),
-            Self::WantChanged(t)
-                .in_set(Self::Want(t))
-                .run_if(rc_changed),
-        ));
-    }
-}
-
 pub trait SetStageAppExt {
     fn configure_stage_set<T: Debug + PartialEq + Eq + Clone + Copy + Hash + SystemSet, M>(
         &mut self,
         schedule: impl ScheduleLabel,
         t: T,
         rc_changed: impl Condition<M>,
+    ) -> &mut Self;
+    fn configure_stage_set_no_rc<T: Debug + PartialEq + Eq + Clone + Copy + Hash + SystemSet>(
+        &mut self,
+        schedule: impl ScheduleLabel,
+        t: T,
     ) -> &mut Self;
 }
 
@@ -50,7 +38,25 @@ impl SetStageAppExt for App {
         t: T,
         rc_changed: impl Condition<M>,
     ) -> &mut Self{
-        SetStage::configure_sets(self, schedule, t, rc_changed);
+        self.configure_sets(schedule, (
+            SetStage::Prepare(t).before(SetStage::Provide(t)),
+            SetStage::Want(t).after(SetStage::Provide(t)),
+            SetStage::WantChanged(t)
+                .in_set(SetStage::Want(t))
+                .run_if(rc_changed),
+        ));
+        self
+    }
+    fn configure_stage_set_no_rc<T: Debug + PartialEq + Eq + Clone + Copy + Hash + SystemSet>(
+        &mut self,
+        schedule: impl ScheduleLabel,
+        t: T,
+    ) -> &mut Self{
+        self.configure_sets(schedule, (
+            SetStage::Prepare(t).before(SetStage::Provide(t)),
+            SetStage::Want(t).after(SetStage::Provide(t)),
+            SetStage::WantChanged(t).in_set(SetStage::Want(t))
+        ));
         self
     }
 }
