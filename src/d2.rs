@@ -2,16 +2,23 @@ use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowRef};
 use bevy::render::camera::RenderTarget;
 
+use crate::state::*;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemSet)]
-pub struct WorldCursorSet;
+pub struct WorldCursorSS;
 
 pub struct WorldCursorPlugin;
 
 impl Plugin for WorldCursorPlugin {
     fn build(&self, app: &mut App) {
+        app.configure_stage_set(
+            Update,
+            WorldCursorSS,
+            resource_changed::<WorldCursor>
+        );
         app.init_resource::<WorldCursor>();
         app.add_systems(Update,
-            world_cursor.in_set(WorldCursorSet)
+            world_cursor.in_set(SetStage::Provide(WorldCursorSS))
         );
     }
 }
@@ -48,6 +55,9 @@ fn world_cursor(
     else {
         return;
     };
+    if crs.pos == cursor && crs.pos_prev == cursor {
+        return;
+    }
     crs.pos_prev = crs.pos;
     crs.pos = cursor;
 }
