@@ -6,6 +6,18 @@ use bevy::ecs::archetype::ArchetypeComponentId;
 use bevy::utils::intern::Interned;
 use std::borrow::Cow;
 
+pub fn any_added_component<T: Component>(
+    q: Query<(), Added<T>>,
+) -> bool {
+    !q.is_empty()
+}
+
+pub fn any_changed_component<T: Component>(
+    q: Query<(), Changed<T>>,
+) -> bool {
+    !q.is_empty()
+}
+
 /// Similar to Bevy's PipedSystem, but with diverging paths for Ok/Err Results
 ///
 /// The main system will run, returning a `Result`, and then one of two other systems
