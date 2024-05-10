@@ -1,10 +1,16 @@
 use bevy::ecs::world::unsafe_world_cell::UnsafeWorldCell;
 use bevy::prelude::*;
-use bevy::ecs::query::Access;
+use bevy::ecs::query::{Access, QueryFilter};
 use bevy::ecs::component::{ComponentId, Tick};
 use bevy::ecs::archetype::ArchetypeComponentId;
 use bevy::utils::intern::Interned;
 use std::borrow::Cow;
+
+pub fn any_filter<F: QueryFilter>(
+    q: Query<(), F>,
+) -> bool {
+    !q.is_empty()
+}
 
 pub fn any_added_component<T: Component>(
     q: Query<(), Added<T>>,
