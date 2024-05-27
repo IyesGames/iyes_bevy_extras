@@ -47,7 +47,7 @@ pub fn init_resource<T: Resource + FromWorld>(world: &mut World) {
 /// Convenience system for removing a component from all entities that match a given query filter
 ///
 /// This may be useful as an "exit" system in your app states.
-pub fn remove_from_all<T: Component, F: QueryFilter>(world: &mut World, query: &mut QueryState<Entity, (With<T>, F)>) {
+pub fn remove_from_all<T: Bundle, F: QueryFilter>(world: &mut World, query: &mut QueryState<Entity, F>) {
     let entities: Vec<Entity> = query.iter(world).collect();
     for entity in entities {
         if let Some(mut entity_mut) = world.get_entity_mut(entity) {
