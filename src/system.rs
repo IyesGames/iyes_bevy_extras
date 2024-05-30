@@ -12,6 +12,12 @@ pub fn any_filter<F: QueryFilter>(
     !q.is_empty()
 }
 
+pub fn none_filter<F: QueryFilter>(
+    q: Query<(), F>,
+) -> bool {
+    q.is_empty()
+}
+
 pub fn any_added_component<T: Component>(
     q: Query<(), Added<T>>,
 ) -> bool {
