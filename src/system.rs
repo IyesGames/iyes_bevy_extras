@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::ecs::query::{Access, QueryFilter};
 use bevy::ecs::component::{ComponentId, Tick};
 use bevy::ecs::archetype::ArchetypeComponentId;
-use bevy::utils::intern::Interned;
+use bevy::ecs::intern::Interned;
 use std::borrow::Cow;
 
 pub fn any_filter<F: QueryFilter>(
@@ -77,6 +77,12 @@ impl<T, E, O, SystemIn: System<Out = Result<T, E>>, SystemOk: System<In = T, Out
 
     fn has_deferred(&self) -> bool {
         self.system_in.has_deferred() || self.system_ok.has_deferred() || self.system_err.has_deferred()
+    }
+
+    fn queue_deferred(&mut self, mut world: bevy::ecs::world::DeferredWorld) {
+        self.system_in.queue_deferred(world.reborrow());
+        self.system_ok.queue_deferred(world.reborrow());
+        self.system_err.queue_deferred(world.reborrow());
     }
 
     unsafe fn run_unsafe(&mut self, input: Self::In, world: UnsafeWorldCell) -> Self::Out {
@@ -225,6 +231,11 @@ impl<T, O: Default, SystemIn: System<Out = Option<T>>, SystemSome: System<In = T
 
     fn has_deferred(&self) -> bool {
         self.system_in.has_deferred() || self.system_some.has_deferred()
+    }
+
+    fn queue_deferred(&mut self, mut world: bevy::ecs::world::DeferredWorld) {
+        self.system_in.queue_deferred(world.reborrow());
+        self.system_some.queue_deferred(world.reborrow());
     }
 
     unsafe fn run_unsafe(&mut self, input: Self::In, world: UnsafeWorldCell) -> Self::Out {
