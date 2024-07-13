@@ -5,6 +5,7 @@ use bevy::ecs::component::{ComponentId, Tick};
 use bevy::ecs::archetype::ArchetypeComponentId;
 use bevy::ecs::intern::Interned;
 use std::borrow::Cow;
+use std::fmt::Display;
 
 pub fn any_filter<F: QueryFilter>(
     q: Query<(), F>,
@@ -28,6 +29,19 @@ pub fn any_changed_component<T: Component>(
     q: Query<(), Changed<T>>,
 ) -> bool {
     !q.is_empty()
+}
+
+pub fn print_error<T, E: Display>(msg: &str) -> impl FnMut(In<Result<T, E>>) -> Result<T, E> {
+    let msg = msg.to_owned();
+    move |In(result): In<Result<T, E>>| {
+        if let Err(e) = &result {
+            error!("{}: {:#}", msg, e);
+        }
+        result
+    }
+}
+
+pub fn fuse<T>(_: In<T>) {
 }
 
 /// Similar to Bevy's PipedSystem, but with diverging paths for Ok/Err Results
