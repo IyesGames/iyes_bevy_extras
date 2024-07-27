@@ -13,5 +13,6 @@ pub mod prelude {
 pub mod cleanup;
 pub mod state;
 pub mod system;
+pub mod task;
 #[cfg(feature = "2d")]
 pub mod d2;

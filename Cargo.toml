@@ -8,6 +8,7 @@ publish = false
 
 [dependencies]
 bevy = { version = "0.14", default-features = false }
+iyes_progress = { version = "0.12", optional = true }
 
 [features]
 default = [ "2d" ]
@@ -17,3 +18,6 @@ default = [ "2d" ]
     "bevy/bevy_sprite",
     "bevy/bevy_winit",
 ]
+
+[dev-dependencies]
+bevy = "0.14"
