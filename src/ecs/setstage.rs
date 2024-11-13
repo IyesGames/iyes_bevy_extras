@@ -1,10 +1,10 @@
-use bevy::prelude::*;
-
 use bevy::ecs::schedule::ScheduleLabel;
+use bevy::prelude::*;
 
 use std::fmt::Debug;
 use std::hash::Hash;
 
+/// Abstraction for organizing system dependencies around system sets.
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, SystemSet)]
 pub enum SetStage<T: Debug + PartialEq + Eq + Clone + Copy + Hash + SystemSet> {
     /// Anything that runs before and may affect operation
@@ -37,26 +37,33 @@ impl SetStageAppExt for App {
         schedule: impl ScheduleLabel,
         t: T,
         rc_changed: impl Condition<M>,
-    ) -> &mut Self{
-        self.configure_sets(schedule, (
-            SetStage::Prepare(t).before(SetStage::Provide(t)),
-            SetStage::Want(t).after(SetStage::Provide(t)),
-            SetStage::WantChanged(t)
-                .in_set(SetStage::Want(t))
-                .run_if(rc_changed),
-        ));
+    ) -> &mut Self {
+        self.configure_sets(
+            schedule,
+            (
+                SetStage::Prepare(t).before(SetStage::Provide(t)),
+                SetStage::Want(t).after(SetStage::Provide(t)),
+                SetStage::WantChanged(t)
+                    .in_set(SetStage::Want(t))
+                    .run_if(rc_changed),
+            ),
+        );
         self
     }
+
     fn configure_stage_set_no_rc<T: Debug + PartialEq + Eq + Clone + Copy + Hash + SystemSet>(
         &mut self,
         schedule: impl ScheduleLabel,
         t: T,
-    ) -> &mut Self{
-        self.configure_sets(schedule, (
-            SetStage::Prepare(t).before(SetStage::Provide(t)),
-            SetStage::Want(t).after(SetStage::Provide(t)),
-            SetStage::WantChanged(t).in_set(SetStage::Want(t))
-        ));
+    ) -> &mut Self {
+        self.configure_sets(
+            schedule,
+            (
+                SetStage::Prepare(t).before(SetStage::Provide(t)),
+                SetStage::Want(t).after(SetStage::Provide(t)),
+                SetStage::WantChanged(t).in_set(SetStage::Want(t)),
+            ),
+        );
         self
     }
 }

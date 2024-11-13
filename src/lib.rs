@@ -3,16 +3,11 @@
 //! Throw everything here until you figure out a better place to put it. :)
 
 pub mod prelude {
-    pub use crate::cleanup::*;
-    pub use crate::state::*;
-    pub use crate::system::*;
-    #[cfg(feature = "2d")]
-    pub use crate::d2::*;
+    pub use crate::ecs::*;
+    #[cfg(any(feature = "2d", feature = "3d"))]
+    pub use crate::world_cursor::*;
 }
 
-pub mod cleanup;
-pub mod state;
-pub mod system;
-pub mod task;
-#[cfg(feature = "2d")]
-pub mod d2;
+pub mod ecs;
+#[cfg(any(feature = "2d", feature = "3d"))]
+pub mod world_cursor;
