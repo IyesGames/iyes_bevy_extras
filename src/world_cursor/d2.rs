@@ -21,14 +21,14 @@ fn world_cursor_2d(
     q_primary_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform), With<WorldCursorCamera>>,
 ) {
-    let Ok((camera, xf_camera)) = q_camera.get_single() else {
+    let Ok((camera, xf_camera)) = q_camera.single() else {
         return;
     };
     let RenderTarget::Window(w_id) = camera.target else {
         panic!("Cursor camera must render to a window!");
     };
     let window = match w_id {
-        WindowRef::Primary => q_primary_window.single(),
+        WindowRef::Primary => q_primary_window.single().unwrap(),
         WindowRef::Entity(e) => q_windows.get(e).unwrap(),
     };
     let Some(wpos) = window.cursor_position() else {

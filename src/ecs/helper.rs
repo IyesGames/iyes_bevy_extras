@@ -9,25 +9,10 @@ use std::fmt::Display;
 /// swaths of entities on state transition. For example, you could create a marker
 /// component for all of your gameplay entities, and use this system to easily
 /// despawn all of them when going back to the main menu.
-///
-/// Consider using [`despawn_all_with_recursive`]
-/// instead, to ensure you are not left with broken hierarchies. This could happen if
-/// you have an entity with the component in a hierarchy where not all entities have the
-/// component. This system will only despawn the entities with the component.
 pub fn despawn_all<F: QueryFilter>(world: &mut World, query: &mut QueryState<Entity, F>) {
     let entities: Vec<Entity> = query.iter(world).collect();
     for entity in entities {
         world.despawn(entity);
-    }
-}
-
-/// Recursive version of [`despawn_all`]
-pub fn despawn_all_recursive<F: QueryFilter>(world: &mut World, query: &mut QueryState<Entity, F>) {
-    let entities: Vec<Entity> = query.iter(world).collect();
-    for entity in entities {
-        if let Ok(entity_mut) = world.get_entity_mut(entity) {
-            entity_mut.despawn_recursive();
-        }
     }
 }
 
