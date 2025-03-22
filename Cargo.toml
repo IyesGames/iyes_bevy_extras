@@ -7,7 +7,7 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.16.0-rc.1", default-features = false }
+bevy = { path = "../bevy", default-features = false }
 
 [features]
 2d = [
@@ -25,4 +25,4 @@ bevy = { version = "0.16.0-rc.1", default-features = false }
 ]
 
 [dev-dependencies]
-bevy = "0.16.0-rc.1"
+bevy = { path = "../bevy", default-features = true }
